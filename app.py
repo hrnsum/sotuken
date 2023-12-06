@@ -9,34 +9,37 @@ import customtkinter
 FONT_TYPE = "meiryo"
 
 class App(customtkinter.CTk):
-
+    # 初期設定
     def __init__(self):
         super().__init__()
-        self.fonts = (FONT_TYPE, 15)
-        self.geometry("1000x650")
+        self.fonts = (FONT_TYPE, 18)
+        self.geometry("1000x700")
         self.title("YOLOPlus")
         self.resizable(width="False",height="False")
         self.setup_form()
-
+    ########## 見た目作成部分 ##########
     def setup_form(self):
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("green")
-
-        frame1 = customtkinter.CTkFrame(master=self,width=500,height=30)
-        frame1.place(x=150, y=50)
+        # ファイル名テキストボックス
+        frame1 = customtkinter.CTkFrame(master=self,width=590,height=35)
+        frame1.place(x=60, y=50)
         global file_path, filepath_entry
         file_path = customtkinter.StringVar()
-        filepath_entry = customtkinter.CTkEntry(frame1, width=500, font=self.fonts,textvariable=file_path)
+        filepath_entry = customtkinter.CTkEntry(frame1, width=590, font=self.fonts,textvariable=file_path)
         filepath_entry.place(x=0, y=0)
-
+    
         self.button = customtkinter.CTkButton(master=self, text="参照", command=self.click_refer_button, font=self.fonts,width=80)
         self.button.place(x=670, y=50)
         self.button2 = customtkinter.CTkButton(master=self, text="表示", command=self.click_display_button, font=self.fonts,width=80)
         self.button2.place(x=770, y=50)
-        self.yolo_button = customtkinter.CTkButton(self, text=u'画像認識', command=self.click_detect_button, font=self.fonts,width=80)
-        self.yolo_button.place(x=670,y=90)
-        self.yolo_button2 = customtkinter.CTkButton(self, text=u'撮影開始', command=self.click_camera_button, font=self.fonts,width=80)
-        self.yolo_button2.place(x=770,y=90)
+        self.refine_button = customtkinter.CTkButton(self, text=u'高画質化', command=self.click_detect_button, font=self.fonts,width=180,height=80)
+        self.refine_button.place(x=78,y=600)
+        self.yolo_button = customtkinter.CTkButton(self, text=u'画像認識', command=self.click_detect_button, font=self.fonts,width=180,height=80)
+        self.yolo_button.place(x=278,y=600)
+        self.yolo_button2 = customtkinter.CTkButton(self, text=u'●', command=self.click_camera_button, font=self.fonts,width=30,height=30,fg_color="red",border_color="#fff",border_width=1)
+        self.yolo_button2.place(x=890,y=50)
+
     
     ########## 画像の縦横比率を維持してリサイズする関数 ##########
     def resizing(self,img,width):
@@ -65,37 +68,37 @@ class App(customtkinter.CTk):
         img = Image.open(tval)
         global img_resize, display 
         img_resize = self.resizing(img,600)
-        img_resize.save("C:/yolov8/img/" + filename)
-        resized_img = Image.open("C:/yolov8/img/" + filename)
+        img_resize.save("C:/GUI/img/" + filename)
+        resized_img = Image.open("C:/GUI/img/" + filename)
         # 画像表示
         display = ImageTk.PhotoImage(resized_img)
-        canvas = customtkinter.CTkCanvas(width=600, height=700,bg="#333", bd=5,highlightbackground="green")
-        canvas.place(x=100,y=200)
+        canvas = customtkinter.CTkCanvas(width=600, height=700,bg="#333", highlightbackground="green")
+        canvas.place(x=100,y=170)
         canvas.create_image(305,375,image=display)
         
     ########## 画像認識の関数 ##########
     def click_detect_button(self):
         global img_resize
-        img_resize.save("C:/yolov8/data/images/" + "yolo_" + filename)
-        shutil.rmtree("C:/yolov8/runs/detect/")
-        os.mkdir("C:/yolov8/runs/detect/")
-        command = "yolo task=detect mode=predict model=yolov8x.pt source=""C:/yolov8/data/images/" + "yolo_" + filename
+        img_resize.save("C:/GUI/yolov5/data/images/" + "yolo_" + filename)
+        shutil.rmtree("C:/GUI/yolov5/runs/detect/")
+        os.mkdir("C:/GUI/yolov5/runs/detect/")
+        command = "python yolov5/detect.py --weights yolov5s.pt --source yolov5/data/images/" + "yolo_" + filename
         subprocess.call(command,shell=True)
-        path ="C:/yolov8/runs/detect/"
+        path ="C:/GUI/yolov5/runs/detect/"
         files = os.listdir(path)
         print(files)
-        img = Image.open("C:/yolov8/runs/detect/"+ files[-1] + "/" + "yolo_" + filename)
+        img = Image.open("C:/GUI/yolov5/runs/detect/"+ files[-1] + "/" + "yolo_" + filename)
         # 画像保存
         self.img_resize = self.resizing(img,600)
-        self.img_resize.save("C:/yolov8/img/" + "yolo_" + filename)
-        self.resized_img = Image.open("C:/yolov8/img/" + "yolo_" + filename)
+        self.img_resize.save("C:/GUI/img/" + "yolo_" + filename)
+        self.resized_img = Image.open("C:/GUI/img/" + "yolo_" + filename)
         print(self.resized_img)
         # 画像表示
         global display2,canvas2
         display2 = ImageTk.PhotoImage(self.resized_img)
         print(display2)
-        self.canvas2 = tk.Canvas(width=600, height=700 ,bg="#333", bd=5, highlightbackground="red")
-        self.canvas2.place(x=780,y=200)
+        self.canvas2 = customtkinter.CTkCanvas(width=600, height=700 ,bg="#333", highlightbackground="red")
+        self.canvas2.place(x=780,y=170)
         self.canvas2.create_image(305,375,image=display2)
     
     ########## カメラ起動して物体検知、画像保存する関数（撮影開始ボタンを押すと実行される） ##########
@@ -182,8 +185,9 @@ class App(customtkinter.CTk):
                 break
         cap.release()
         cv2.destroyAllWindows()
-
-
+    
+    def click_video_button():
+        print("aaa")
 if __name__ == "__main__":
     app = App()
     app.mainloop()
