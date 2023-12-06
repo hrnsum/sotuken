@@ -18,12 +18,11 @@ class App(customtkinter.CTk):
         self.resizable(width="False",height="False")
         self.setup_form()
 
-    
     def setup_form(self):
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("green")
 
-        frame1 = customtkinter.CTkFrame(master=self,width=500)
+        frame1 = customtkinter.CTkFrame(master=self,width=500,height=30)
         frame1.place(x=150, y=50)
         global file_path, filepath_entry
         file_path = customtkinter.StringVar()
@@ -34,15 +33,16 @@ class App(customtkinter.CTk):
         self.button.place(x=670, y=50)
         self.button2 = customtkinter.CTkButton(master=self, text="表示", command=self.click_display_button, font=self.fonts,width=80)
         self.button2.place(x=770, y=50)
-        self.yolo_button = customtkinter.CTkButton(self, text=u'画像認識', command=self.click_detect_button)
-        self.yolo_button.place(x=870,y=50)
+        self.yolo_button = customtkinter.CTkButton(self, text=u'画像認識', command=self.click_detect_button, font=self.fonts,width=80)
+        self.yolo_button.place(x=670,y=90)
+        self.yolo_button2 = customtkinter.CTkButton(self, text=u'撮影開始', command=self.click_camera_button, font=self.fonts,width=80)
+        self.yolo_button2.place(x=770,y=90)
     
-        ########## 画像の縦横比率を維持してリサイズする関数 ##########
+    ########## 画像の縦横比率を維持してリサイズする関数 ##########
     def resizing(self,img,width):
         height = round(img.height * width/ img.width)
         return img.resize((width,height))
     
-
     ########## 参照の関数 ##########
     def click_refer_button(self):
         fTyp = [("JPEG",".jpg"),("PNG",".png")]
@@ -86,7 +86,7 @@ class App(customtkinter.CTk):
         print(files)
         img = Image.open("C:/GUI/yolov5/runs/detect/"+ files[-1] + "/" + "yolo_" + filename)
         # 画像保存
-        self.img_resize = self.resizing(img,380)
+        self.img_resize = self.resizing(img,600)
         self.img_resize.save("C:/GUI/img/" + "yolo_" + filename)
         self.resized_img = Image.open("C:/GUI/img/" + "yolo_" + filename)
         print(self.resized_img)
@@ -94,16 +94,96 @@ class App(customtkinter.CTk):
         global display2,canvas2
         display2 = ImageTk.PhotoImage(self.resized_img)
         print(display2)
-        self.canvas2 = tk.Canvas(width=400, height=500 ,bg="#333", bd=5, highlightbackground="red")
-        self.canvas2.place(x=500,y=100)
-        self.canvas2.create_image(207.5,250,image=display2)
-
-    def button_function(self):
-        print(self.textbox.get())
+        self.canvas2 = tk.Canvas(width=600, height=700 ,bg="#333", bd=5, highlightbackground="red")
+        self.canvas2.place(x=780,y=200)
+        self.canvas2.create_image(305,375,image=display2)
+    
+    ########## カメラ起動して物体検知、画像保存する関数（撮影開始ボタンを押すと実行される） ##########
+    def click_camera_button(self):
+        self.judge = 0
+        try:
+            shutil.rmtree("C:/GUI/runs/detect/")
+        except:
+            print("I can't find!!!")
+        ##### 画像が保存されたか確認、されてたらそのときの日時を取得する関数 #####
+        def check_get_time():
+            if self.judge == 1:
+                return
+            print('Connecting ...')
+            path = "C:/GUI/runs/detect/predict/crops/person/"
+            try:
+                global directory, detect_time, saved_number
+                directory = os.listdir(path)
+                length_small = len(directory)
+                detect_time = []
+                saved_number = []
+                while True:
+                    if self.judge == 1:
+                        break
+                    print("画像が保存されたかの確認処理")
+                    directory = os.listdir(path)
+                    length_large = len(directory)
+                    print("検出回数")
+                    print(length_small,length_large)
+                
+                    if length_small < length_large:
+                        print("新しい画像が保存されました")
+                        detect_time.append(str(datetime.datetime.now().replace(microsecond=0))) #日時取得
+                        num = length_large - length_small
+                        saved_number.append(num)
+                        length_small = length_large
+                        print("一度の検知で保存された画像枚数のデータ：")
+                        print(saved_number)
+                        print("検知した日時のデータ：：")
+                        print(detect_time)
+                        time.sleep(1)
+            except:
+                time.sleep(1)
+                check_get_time()
+        thread1 = threading.Thread(target=check_get_time) # 上のcheck_get_time関数は別のスレッドで実行（並列処理）
+        thread1.start()
+        # 検知したときに画像を保存
+        def save_frame_img(self):
+                    self.datas = []
+                    j = 0 # 時刻参照用
+                    k = 0 # 画像参照用
+                    print(saved_number,detect_time)
+                    shutil.rmtree("C:/GUI/result/detected_imgs/")
+                    os.mkdir("C:/GUI/result/detected_imgs")
+                    for n in saved_number:
+                        i = 0 #n回に到達するまでのカウント用
+                        while i <= n:
+                            edit = str(detect_time[j]).replace(":","-").replace(" ","_")
+                            d = edit + "_"+ directory[k]
+                            self.datas.append(d)
+                            img = Image.open("C:/GUI/runs/detect/predict/crops/person/" + directory[k])
+                            # 画像リサイズ
+                            self.img_resize = self.resizing(img,250)
+                            self.img_resize.save("C:/GUI/result/detected_imgs/" + self.datas[k])
+                            i = i + 1
+                            k = k + 1
+                        j = j + 1
+                    print(self.datas)
+        
+        model = YOLO('yolov8n.pt')
+        cap = cv2.VideoCapture(0)
+        while cap.isOpened():
+            success, frame = cap.read()
+            if success:
+                global results
+                results = model(frame,show=True,save=True,save_crop=True)
+                if cv2.waitKey(1) & 0xFF == ord("q"):
+                    self.judge = self.judge + 1
+                    cap.release()
+                    cv2.destroyAllWindows()
+                    save_frame_img(self)
+                    break
+            else:
+                break
+        cap.release()
+        cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
     app = App()
     app.mainloop()
-
-
