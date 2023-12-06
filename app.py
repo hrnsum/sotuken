@@ -65,8 +65,8 @@ class App(customtkinter.CTk):
         img = Image.open(tval)
         global img_resize, display 
         img_resize = self.resizing(img,600)
-        img_resize.save("C:/GUI/img/" + filename)
-        resized_img = Image.open("C:/GUI/img/" + filename)
+        img_resize.save("C:/yolov8/img/" + filename)
+        resized_img = Image.open("C:/yolov8/img/" + filename)
         # 画像表示
         display = ImageTk.PhotoImage(resized_img)
         canvas = customtkinter.CTkCanvas(width=600, height=700,bg="#333", bd=5,highlightbackground="green")
@@ -76,19 +76,19 @@ class App(customtkinter.CTk):
     ########## 画像認識の関数 ##########
     def click_detect_button(self):
         global img_resize
-        img_resize.save("C:/GUI/yolov5/data/images/" + "yolo_" + filename)
-        shutil.rmtree("C:/GUI/yolov5/runs/detect/")
-        os.mkdir("C:/GUI/yolov5/runs/detect/")
-        command = "python yolov5/detect.py --weights yolov5s.pt --source yolov5/data/images/" + "yolo_" + filename
+        img_resize.save("C:/yolov8/data/images/" + "yolo_" + filename)
+        shutil.rmtree("C:/yolov8/runs/detect/")
+        os.mkdir("C:/yolov8/runs/detect/")
+        command = "yolo task=detect mode=predict model=yolov8x.pt source=""C:/yolov8/data/images/" + "yolo_" + filename
         subprocess.call(command,shell=True)
-        path ="C:/GUI/yolov5/runs/detect/"
+        path ="C:/yolov8/runs/detect/"
         files = os.listdir(path)
         print(files)
-        img = Image.open("C:/GUI/yolov5/runs/detect/"+ files[-1] + "/" + "yolo_" + filename)
+        img = Image.open("C:/yolov8/runs/detect/"+ files[-1] + "/" + "yolo_" + filename)
         # 画像保存
         self.img_resize = self.resizing(img,600)
-        self.img_resize.save("C:/GUI/img/" + "yolo_" + filename)
-        self.resized_img = Image.open("C:/GUI/img/" + "yolo_" + filename)
+        self.img_resize.save("C:/yolov8/img/" + "yolo_" + filename)
+        self.resized_img = Image.open("C:/yolov8/img/" + "yolo_" + filename)
         print(self.resized_img)
         # 画像表示
         global display2,canvas2
