@@ -33,7 +33,7 @@ class App(customtkinter.CTk):
         self.button.place(x=670, y=50)
         self.button2 = customtkinter.CTkButton(master=self, text="表示", command=self.click_display_button, font=self.fonts,width=80)
         self.button2.place(x=770, y=50)
-        self.refine_button = customtkinter.CTkButton(self, text=u'高画質化', command=self.click_detect_button, font=self.fonts,width=180,height=80)
+        self.refine_button = customtkinter.CTkButton(self, text=u'高画質化', command=self.click_refine_button, font=self.fonts,width=180,height=80)
         self.refine_button.place(x=78,y=600)
         self.yolo_button = customtkinter.CTkButton(self, text=u'画像認識', command=self.click_detect_button, font=self.fonts,width=180,height=80)
         self.yolo_button.place(x=278,y=600)
@@ -79,15 +79,15 @@ class App(customtkinter.CTk):
     ########## 画像認識の関数 ##########
     def click_detect_button(self):
         global img_resize
-        img_resize.save("C:/GUI/yolov5/data/images/" + "yolo_" + filename)
-        shutil.rmtree("C:/GUI/yolov5/runs/detect/")
-        os.mkdir("C:/GUI/yolov5/runs/detect/")
-        command = "python yolov5/detect.py --weights yolov5s.pt --source yolov5/data/images/" + "yolo_" + filename
+        img_resize.save("C:/GUI/yolov8/data/images/" + "yolo_" + filename)
+        shutil.rmtree("C:/GUI/runs/detect/")
+        os.mkdir("C:/GUI/runs/detect/")
+        command = "yolo task=detect mode=predict model=yolov8x.pt source=""C:/GUI/yolov8/data/images/" + "yolo_" + filename
         subprocess.call(command,shell=True)
-        path ="C:/GUI/yolov5/runs/detect/"
+        path ="C:/GUI/runs/detect/"
         files = os.listdir(path)
         print(files)
-        img = Image.open("C:/GUI/yolov5/runs/detect/"+ files[-1] + "/" + "yolo_" + filename)
+        img = Image.open("C:/GUI/runs/detect/"+ files[-1] + "/" + "yolo_" + filename)
         # 画像保存
         self.img_resize = self.resizing(img,600)
         self.img_resize.save("C:/GUI/img/" + "yolo_" + filename)
@@ -186,8 +186,23 @@ class App(customtkinter.CTk):
         cap.release()
         cv2.destroyAllWindows()
     
-    def click_video_button():
-        print("aaa")
+    def click_refine_button(self):
+        print("clicked!!!")
+        global img_resize
+        img_resize.save("C:/GUI/SwinIR/testsets/RealSRSet+5images/" + filename)
+        command = "python main_test_swinir.py --task real_sr --scale 4 --large_model --model_path model_zoo/swinir/003_realSR_BSRGAN_DFOWMFC_s64w8_SwinIR-L_x4_GAN.pth --folder_lq SwinIR/testsets/RealSRSet+5images"
+        subprocess.run(command,shell=True)
+        
+        img = Image.open("C:/GUI/SwinIR/results/swinir_real_sr_x4_large/" + filename)
+        img_resize = self.resizing(img,600)
+        img_resize.save("C:/GUI/img/" + filename)
+        resized_img = Image.open("C:/GUI/SwinIR/results/swinir_real_sr_x4_large/" + filename)
+
+        display = ImageTk.PhotoImage(resized_img)
+        self.canvas1 = tk.Canvas(width=400, height=500,bg="#000", relief="solid", bd=5, highlightbackground="red")
+        self.place(x=60,y=100)
+        self.canvas1.create_image(200,250,image=display)
+
 if __name__ == "__main__":
     app = App()
     app.mainloop()
