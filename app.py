@@ -72,7 +72,7 @@ class App(customtkinter.CTk):
         resized_img = Image.open("C:/GUI/img/" + filename)
         # 画像表示
         display = ImageTk.PhotoImage(resized_img)
-        canvas = customtkinter.CTkCanvas(width=600, height=700,bg="#333", highlightbackground="green")
+        canvas = customtkinter.CTkCanvas(width=600, height=700,bg="#34343c", highlightbackground="#2ca474")
         canvas.place(x=100,y=120)
         canvas.create_image(305,365,image=display)
         
@@ -97,7 +97,7 @@ class App(customtkinter.CTk):
         global display2,canvas2
         display2 = ImageTk.PhotoImage(self.resized_img)
         print(display2)
-        self.canvas2 = customtkinter.CTkCanvas(width=600, height=700 ,bg="#333", highlightbackground="red")
+        self.canvas2 = customtkinter.CTkCanvas(width=600, height=700 ,bg="#34343c", highlightbackground="red")
         self.canvas2.place(x=780,y=120)
         self.canvas2.create_image(305,365,image=display2)
     
