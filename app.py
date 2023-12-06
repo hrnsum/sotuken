@@ -13,7 +13,7 @@ class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         self.fonts = (FONT_TYPE, 18)
-        self.geometry("1000x700")
+        self.geometry("1000x660")
         self.title("YOLOPlus")
         self.resizable(width="False",height="False")
         self.setup_form()
@@ -22,23 +22,23 @@ class App(customtkinter.CTk):
         customtkinter.set_appearance_mode("dark")
         customtkinter.set_default_color_theme("green")
         # ファイル名テキストボックス
-        frame1 = customtkinter.CTkFrame(master=self,width=590,height=35)
-        frame1.place(x=60, y=50)
+        frame1 = customtkinter.CTkFrame(master=self,width=584,height=35)
+        frame1.place(x=66, y=20)
         global file_path, filepath_entry
         file_path = customtkinter.StringVar()
-        filepath_entry = customtkinter.CTkEntry(frame1, width=590, font=self.fonts,textvariable=file_path)
+        filepath_entry = customtkinter.CTkEntry(frame1, width=584, font=self.fonts,textvariable=file_path)
         filepath_entry.place(x=0, y=0)
     
-        self.button = customtkinter.CTkButton(master=self, text="参照", command=self.click_refer_button, font=self.fonts,width=80)
-        self.button.place(x=670, y=50)
-        self.button2 = customtkinter.CTkButton(master=self, text="表示", command=self.click_display_button, font=self.fonts,width=80)
-        self.button2.place(x=770, y=50)
-        self.refine_button = customtkinter.CTkButton(self, text=u'高画質化', command=self.click_refine_button, font=self.fonts,width=180,height=80)
-        self.refine_button.place(x=78,y=600)
-        self.yolo_button = customtkinter.CTkButton(self, text=u'画像認識', command=self.click_detect_button, font=self.fonts,width=180,height=80)
-        self.yolo_button.place(x=278,y=600)
+        self.button = customtkinter.CTkButton(master=self, text="参照", command=self.click_refer_button, font=self.fonts,width=80,text_color="#000")
+        self.button.place(x=670, y=20)
+        self.button2 = customtkinter.CTkButton(master=self, text="表示", command=self.click_display_button, font=self.fonts,width=80,text_color="#000")
+        self.button2.place(x=770, y=20)
+        self.refine_button = customtkinter.CTkButton(self, text=u'高画質化', command=self.click_refine_button, font=self.fonts,width=150,height=70,text_color="#000")
+        self.refine_button.place(x=108,y=560)
+        self.yolo_button = customtkinter.CTkButton(self, text=u'画像認識', command=self.click_detect_button, font=self.fonts,width=150,height=70,text_color="#000")
+        self.yolo_button.place(x=278,y=560)
         self.yolo_button2 = customtkinter.CTkButton(self, text=u'●', command=self.click_camera_button, font=self.fonts,width=30,height=30,fg_color="red",border_color="#fff",border_width=1)
-        self.yolo_button2.place(x=890,y=50)
+        self.yolo_button2.place(x=890,y=20)
 
     
     ########## 画像の縦横比率を維持してリサイズする関数 ##########
@@ -73,8 +73,8 @@ class App(customtkinter.CTk):
         # 画像表示
         display = ImageTk.PhotoImage(resized_img)
         canvas = customtkinter.CTkCanvas(width=600, height=700,bg="#333", highlightbackground="green")
-        canvas.place(x=100,y=170)
-        canvas.create_image(305,375,image=display)
+        canvas.place(x=100,y=120)
+        canvas.create_image(305,365,image=display)
         
     ########## 画像認識の関数 ##########
     def click_detect_button(self):
@@ -98,8 +98,8 @@ class App(customtkinter.CTk):
         display2 = ImageTk.PhotoImage(self.resized_img)
         print(display2)
         self.canvas2 = customtkinter.CTkCanvas(width=600, height=700 ,bg="#333", highlightbackground="red")
-        self.canvas2.place(x=780,y=170)
-        self.canvas2.create_image(305,375,image=display2)
+        self.canvas2.place(x=780,y=120)
+        self.canvas2.create_image(305,365,image=display2)
     
     ########## カメラ起動して物体検知、画像保存する関数（撮影開始ボタンを押すと実行される） ##########
     def click_camera_button(self):
